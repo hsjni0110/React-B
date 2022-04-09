@@ -1,4 +1,5 @@
 import {createAction, handleActions} from 'redux-actions';
+import produce from 'immer';
 
 const CHANGE_INPUT ='todos/CHANGE_INPUT';
 const INSERT = 'todos/INSERT';
@@ -35,7 +36,29 @@ const initialState = {
 	]
 }
 
-
+const todos = handleActions(
+{
+	[CHANGE_INPUT]: (state, { payload:input }) => 
+		produce(state, (draft)=>{
+			draft.input = input;
+		}),
+	[INSERT]: (state,{ payload:todo }) => 
+		produce(state, (draft) => {
+			draft.todos.push(todo);
+		}),
+	[TOGGLE]: (state,{payload:id}) =>
+		produce(state, (draft) => {
+			const todo = draft.todos.find((todo) => todo.id === id);
+			todo.done = !todo.done;
+		}),
+	[REMOVE]: (state,{payload:id}) => 
+		produce(state, (draft) => {
+			const index = draft.todos.findIndex((todo) => todo.id === id);
+			draft.todos.splice(index, 1);
+		}),
+},initialState
+)
+/*
 const todos = handleActions(
 {
 	[CHANGE_INPUT]: (state, { payload:input }) => ({...state,input }),
@@ -55,6 +78,7 @@ const todos = handleActions(
 	}),
 },initialState
 )
+*/
 //payload는 추가 데이터 값이지만, 모든 추가 데이터 값을 action.payload로 사용하면 헷갈린다. 따라서, 객체 비구조화 할당 문법으로
 //이름을 새로 지정해주는 것이좋다.
 
